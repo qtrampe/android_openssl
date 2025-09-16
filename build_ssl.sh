@@ -153,9 +153,15 @@ EOF
         ;;
     esac
 
+    echo "Configuring OpenSSL $ssl_version with NDK $ndk on ABI $arch"
     config_params=( "${build_type}" "shared" "android-${arch}"
                     "-U__ANDROID_API__" "-D__ANDROID_API__=${ANDROID_API}" )
-    echo "Configuring OpenSSL $ssl_version with NDK $ndk"
+    if [ "$arch" = "arm64" -o "$arch" = "x86_64" ]; then
+        if [ "${ndk:0:2}" -ge 25 ]; then
+            echo "Configuring OpenSSL to 16KB page sizes"
+            config_params+=("LDFLAGS="$LDFLAGS -Wl,-z,max-page-size=16384"")
+        fi
+    fi
     echo "Configure parameters: ${config_params[@]}"
 
     ./Configure "${config_params[@]}" 2>&1 1>${log_file} | tee -a ${log_file} || exit 1
