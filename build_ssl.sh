@@ -226,16 +226,17 @@ for build_type in "${build_types[@]}"; do
             rm -fr "$output_dir"
             mkdir -p "$output_dir" || exit 1
 
+            build_ssl ${log_file}
             # Copy the include dir only once since since it's the same for all abis
             if [ ! -d "$output_dir/../include" ]; then
                 cp -a include "$output_dir/../" || exit 1
 
                 # Clean include folder
-                find "$output_dir/../" -name "*.in" -delete
-                find "$output_dir/../" -name "*.def" -delete
+                find "$output_dir/../" -name "*.in" -print -delete
+                find "$output_dir/../" -name "*.def" -print -delete
             fi
 
-            build_ssl ${log_file}
+
             strip_libs
             copy_build_artefacts ${output_dir}
             
